@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2487.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;Snowrider 3D&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body { margin: 0; overflow: hidden; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>canvas { display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Setup basic 3D scene</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const scene = new THREE.Scene();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const renderer = new THREE.WebGLRenderer();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.body.appendChild(renderer.domElement);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Snowboarder (represented by a simple box)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const snowboarderGeometry = new THREE.BoxGeometry(1, 1, 0.2);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const snowboarderMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const snowboarder = new THREE.Mesh(snowboarderGeometry, snowboarderMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>snowboarder.position.set(0, 0, 0);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>scene.add(snowboarder);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Snowboard ramp (represented by a plane)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const rampGeometry = new THREE.PlaneGeometry(100, 100, 10, 10);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const rampMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const ramp = new THREE.Mesh(rampGeometry, rampMaterial);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ramp.rotation.x = -Math.PI / 4; // Tilt the ramp</p>
+<p class="p1"><span class="Apple-converted-space">    </span>ramp.position.y = -5;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>scene.add(ramp);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Lighting</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const light = new THREE.AmbientLight(0x404040); // Soft white light</p>
+<p class="p1"><span class="Apple-converted-space">    </span>scene.add(light);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const pointLight = new THREE.PointLight(0xffffff, 1, 100);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pointLight.position.set(10, 10, 10);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>scene.add(pointLight);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Set the camera position</p>
+<p class="p1"><span class="Apple-converted-space">    </span>camera.position.z = 20;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Player movement</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let moveSpeed = 0.1;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let moveDirection = { x: 0, z: 0 };</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Handle keyboard input</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener("keydown", (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (event.key === "ArrowLeft") {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>moveDirection.x = -1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if (event.key === "ArrowRight") {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>moveDirection.x = 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if (event.key === "ArrowUp") {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>moveDirection.z = -1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>} else if (event.key === "ArrowDown") {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>moveDirection.z = 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener("keyup", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>moveDirection.x = 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>moveDirection.z = 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Animation loop</p>
+<p class="p1"><span class="Apple-converted-space">    </span>function animate() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>requestAnimationFrame(animate);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Move the snowboarder</p>
+<p class="p1"><span class="Apple-converted-space">      </span>snowboarder.position.x += moveDirection.x * moveSpeed;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>snowboarder.position.z += moveDirection.z * moveSpeed;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Keep the snowboarder within the screen bounds</p>
+<p class="p1"><span class="Apple-converted-space">      </span>snowboarder.position.x = Math.max(Math.min(snowboarder.position.x, 50), -50);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>snowboarder.position.z = Math.max(Math.min(snowboarder.position.z, 50), -50);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Render the scene</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderer.render(scene, camera);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Resize the canvas when the window is resized</p>
+<p class="p1"><span class="Apple-converted-space">    </span>window.addEventListener("resize", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderer.setSize(window.innerWidth, window.innerHeight);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>camera.aspect = window.innerWidth / window.innerHeight;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>camera.updateProjectionMatrix();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Start the animation</p>
+<p class="p1"><span class="Apple-converted-space">    </span>animate();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
